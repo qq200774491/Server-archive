@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id          String      @id @default(cuid())
+  playerId    String      @unique  // 游戏客户端传入的玩家ID
+  playerName  String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  mapPlayers  MapPlayer[]
+}
+
+model Map {
+  id          String                 @id @default(cuid())
+  name        String
+  description String?
+  config      Json?
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  mapPlayers  MapPlayer[]
+  dimensions  LeaderboardDimension[]
+}
+
+model MapPlayer {
+  id        String    @id @default(cuid())
+  map       Map       @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  mapId     String
+  player    Player    @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  playerId  String
+  joinedAt  DateTime  @default(now())
+  archives  Archive[]
+
+  @@unique([mapId, playerId])
+}
+
+model Archive {
+  id          String             @id @default(cuid())
+  mapPlayer   MapPlayer          @relation(fields: [mapPlayerId], references: [id], onDelete: Cascade)
+  mapPlayerId String
+  name        String
+  data        Json
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  entries     LeaderboardEntry[]
+}
+
+model LeaderboardDimension {
+  id        String             @id @default(cuid())
+  map       Map                @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  mapId     String
+  name      String
+  unit      String?
+  sortOrder String             @default("DESC") // "ASC" 或 "DESC"
+  createdAt DateTime           @default(now())
+  entries   LeaderboardEntry[]
+
+  @@unique([mapId, name])
+}
+
+model LeaderboardEntry {
+  id          String               @id @default(cuid())
+  dimension   LeaderboardDimension @relation(fields: [dimensionId], references: [id], onDelete: Cascade)
+  dimensionId String
+  archive     Archive              @relation(fields: [archiveId], references: [id], onDelete: Cascade)
+  archiveId   String
+  value       Decimal              @db.Decimal(20, 6)
+  metadata    Json?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@unique([dimensionId, archiveId])
+  @@index([dimensionId, value])
+}
