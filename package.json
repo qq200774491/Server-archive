@@ -10,7 +10,11 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "db:start": "docker run -d --name serverarchive-db -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=serverarchive postgres:16-alpine",
+    "db:stop": "docker stop serverarchive-db && docker rm serverarchive-db",
+    "setup": "npm run db:start && timeout /t 3 && npm run db:push && npm run db:seed",
+    "setup:unix": "npm run db:start && sleep 3 && npm run db:push && npm run db:seed"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
