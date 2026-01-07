@@ -40,6 +40,8 @@ open http://localhost:3000
 
 ### 裸 Linux 服务器“一键部署 + 冒烟测试”（root / sudo）
 
+要求较新的 Linux 发行版（例如 Ubuntu 20.04+/Debian 11+/CentOS 7+/Rocky 8+）。CentOS 6 / RHEL 6 无法运行本项目所需的 Node/Prisma 或 Docker 运行时。
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/qq200774491/Server-archive/master/scripts/deploy-oneclick.sh | sudo bash
 ```

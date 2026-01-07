@@ -6,6 +6,46 @@ BRANCH="${BRANCH:-}"
 APP_DIR="${APP_DIR:-/opt/server-archive}"
 APP_URL="${APP_URL:-http://localhost:3000}"
 
+min_glibc_ok() {
+  if ! command -v ldd >/dev/null 2>&1; then
+    return 0
+  fi
+  local ver
+  ver="$(ldd --version 2>/dev/null | head -n1 | sed -n 's/.* \([0-9]\+\.[0-9]\+\).*/\1/p')"
+  if [[ -z "${ver}" ]]; then
+    return 0
+  fi
+  local major minor
+  major="${ver%%.*}"
+  minor="${ver##*.}"
+  # Prisma/Node modern builds typically require glibc >= 2.17.
+  if [[ "${major}" -lt 2 ]]; then return 1; fi
+  if [[ "${minor}" -lt 17 ]]; then return 1; fi
+  return 0
+}
+
+require_supported_os() {
+  if [[ -f /etc/os-release ]]; then
+    # shellcheck disable=SC1091
+    . /etc/os-release
+    if [[ -n "${VERSION_ID:-}" ]]; then
+      case "${ID:-}" in
+        centos|rhel|almalinux|rocky)
+          if [[ "${VERSION_ID%%.*}" -lt 7 ]]; then
+            echo "Unsupported OS: ${PRETTY_NAME}. Please upgrade to CentOS/RHEL 7+ (recommended Rocky 8/9 or Ubuntu 22.04+)." >&2
+            exit 2
+          fi
+          ;;
+      esac
+    fi
+  fi
+
+  if ! min_glibc_ok; then
+    echo "Unsupported system: glibc is too old for Node/Prisma. Please upgrade the OS (recommended Ubuntu 22.04+/Debian 12/Rocky 8+)." >&2
+    exit 2
+  fi
+}
+
 ensure_root() {
   if [[ "${EUID:-$(id -u)}" -ne 0 ]]; then
     echo "Please run as root (or via sudo)." >&2
@@ -91,6 +131,7 @@ smoke_test() {
 
 main() {
   ensure_root
+  require_supported_os
 
   if [[ -f /etc/os-release ]]; then
     . /etc/os-release
@@ -120,4 +161,3 @@ main() {
 }
 
 main "$@"
-
