@@ -45,6 +45,27 @@ check_docker() {
     print_success "Docker 已安装"
 }
 
+# 配置 Docker 镜像加速（国内服务器）
+setup_docker_mirror() {
+    print_info "配置 Docker 镜像加速..."
+    if [ ! -f /etc/docker/daemon.json ] || ! grep -q "registry-mirrors" /etc/docker/daemon.json; then
+        mkdir -p /etc/docker
+        cat > /etc/docker/daemon.json << 'MIRROR_EOF'
+{
+  "registry-mirrors": [
+    "https://docker.m.daocloud.io",
+    "https://dockerhub.icu",
+    "https://docker.awsl9527.cn"
+  ]
+}
+MIRROR_EOF
+        systemctl restart docker 2>/dev/null || true
+        print_success "Docker 镜像加速已配置"
+    else
+        print_success "Docker 镜像加速已存在"
+    fi
+}
+
 # 检查 Docker Compose 是否安装
 check_docker_compose() {
     print_info "检查 Docker Compose 是否安装..."
@@ -163,6 +184,7 @@ show_status() {
 # 主流程
 main() {
     check_docker
+    setup_docker_mirror
     check_docker_compose
     check_git
     clone_or_update
