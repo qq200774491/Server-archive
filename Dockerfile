@@ -1,5 +1,5 @@
 # 构建阶段
-FROM registry.cn-hangzhou.aliyuncs.com/library/node:20-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # 生产阶段
-FROM registry.cn-hangzhou.aliyuncs.com/library/node:20-alpine AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 

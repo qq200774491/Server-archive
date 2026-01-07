@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
 
   db:
-    image: registry.cn-hangzhou.aliyuncs.com/acs/postgresql:16-alpine
+    image: postgres:16-alpine
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
