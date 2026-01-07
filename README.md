@@ -41,7 +41,7 @@ open http://localhost:3000
 ### 裸 Linux 服务器“一键部署 + 冒烟测试”（root / sudo）
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/qq200774491/Server-archive/main/scripts/deploy-oneclick.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/qq200774491/Server-archive/master/scripts/deploy-oneclick.sh | sudo bash
 ```
 
 可选参数：
