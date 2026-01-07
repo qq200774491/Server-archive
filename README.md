@@ -38,6 +38,17 @@ docker-compose --profile migrate up migrate
 open http://localhost:3000
 ```
 
+### 裸 Linux 服务器“一键部署 + 冒烟测试”（root / sudo）
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/qq200774491/Server-archive/main/scripts/deploy-oneclick.sh | sudo bash
+```
+
+可选参数：
+- 指定仓库/分支：`REPO_URL=... BRANCH=...`
+- 指定安装目录：`APP_DIR=/opt/server-archive`
+- 指定冒烟测试 URL：`APP_URL=http://localhost:3000`
+
 ### 本地开发
 
 ```bash
