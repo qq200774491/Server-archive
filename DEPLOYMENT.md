@@ -311,6 +311,72 @@ docker-compose down -v
 docker image prune -a
 ```
 
+## 自动维护（推荐配置）
+
+项目提供了自动维护脚本，支持：
+- 每天自动拉取最新代码并重启
+- 每天自动清理日志和 Docker 资源
+- 每 10 分钟健康检查
+
+### 设置自动维护
+
+```bash
+# 添加执行权限
+chmod +x scripts/maintenance.sh
+
+# 一键设置所有定时任务
+./scripts/maintenance.sh setup-cron
+```
+
+### 手动执行维护命令
+
+```bash
+# 更新代码并重启服务
+./scripts/maintenance.sh update
+
+# 仅重启服务（不更新代码）
+./scripts/maintenance.sh restart
+
+# 清理日志和 Docker 资源
+./scripts/maintenance.sh clean
+
+# 健康检查
+./scripts/maintenance.sh health
+
+# 执行所有维护任务
+./scripts/maintenance.sh all
+```
+
+### 查看维护日志
+
+```bash
+# 查看维护日志
+tail -f /var/log/serverarchive/maintenance.log
+
+# 查看定时任务日志
+tail -f /var/log/serverarchive/cron.log
+```
+
+### 自定义维护时间
+
+默认的定时任务：
+- **04:00** - 自动更新代码并重启
+- **05:00** - 清理日志和 Docker 资源
+- **每 10 分钟** - 健康检查
+
+如需修改，编辑 crontab：
+
+```bash
+crontab -e
+```
+
+修改时间格式说明：`分 时 日 月 星期 命令`
+
+```bash
+# 示例：改为每天凌晨 3 点更新
+0 3 * * * /root/ServerArchive/scripts/maintenance.sh update
+```
+
 ## 防火墙配置
 
 ### Ubuntu (UFW)
