@@ -62,60 +62,70 @@ npm run dev
 
 ### 认证方式
 
-所有 API 请求需要在请求头中包含：
+本项目已全量切换到 **v2 API**：`/api/v2/*`。
 
-```
-X-Player-ID: <玩家唯一ID>
-X-Player-Name: <玩家显示名>
-```
+**玩家端（游戏客户端）**
+- 先请求 `POST /api/v2/auth/player` 获取 `token`
+- 后续请求携带：`Authorization: Bearer <token>`
 
-首次请求时会自动注册玩家。
+**管理端（后台）**
+- 需要携带：`X-Admin-Token: <ADMIN_TOKEN>`
+- 管理 UI 访问需先到 `/admin/login` 输入 token
 
 ### API 端点
 
 | 方法 | 路径 | 描述 |
 |------|------|------|
+| **认证** |||
+| POST | `/api/v2/auth/player` | 签发玩家 token（并自动注册/更新玩家） |
 | **地图** |||
-| GET | `/api/maps` | 获取所有地图 |
-| GET | `/api/maps/:mapId` | 获取地图详情 |
-| POST | `/api/maps` | 创建地图 |
-| PUT | `/api/maps/:mapId` | 更新地图 |
-| DELETE | `/api/maps/:mapId` | 删除地图 |
+| GET | `/api/v2/maps` | 获取所有地图（Bearer） |
+| GET | `/api/v2/maps/:mapId` | 获取地图详情（Bearer） |
+| POST | `/api/v2/maps` | 创建地图（Admin） |
+| PUT | `/api/v2/maps/:mapId` | 更新地图（Admin） |
+| DELETE | `/api/v2/maps/:mapId` | 删除地图（Admin） |
 | **玩家** |||
-| GET | `/api/players/me` | 获取当前玩家信息 |
-| GET | `/api/maps/:mapId/players` | 获取地图内玩家列表 |
-| POST | `/api/maps/:mapId/join` | 加入地图 |
+| GET | `/api/v2/players/me` | 获取当前玩家信息（Bearer） |
+| GET | `/api/v2/maps/:mapId/players` | 获取地图内玩家列表（Bearer） |
+| POST | `/api/v2/maps/:mapId/join` | 加入地图（Bearer） |
 | **存档** |||
-| GET | `/api/maps/:mapId/archives` | 获取我在该地图的存档 |
-| GET | `/api/archives/:archiveId` | 获取存档详情 |
-| POST | `/api/maps/:mapId/archives` | 创建存档 |
-| PUT | `/api/archives/:archiveId` | 更新存档 |
-| DELETE | `/api/archives/:archiveId` | 删除存档 |
+| GET | `/api/v2/maps/:mapId/archives` | 获取我在该地图的存档（Bearer） |
+| GET | `/api/v2/archives/:archiveId` | 获取存档详情（Bearer） |
+| POST | `/api/v2/maps/:mapId/archives` | 创建存档（Bearer） |
+| PUT | `/api/v2/archives/:archiveId` | 更新存档（Bearer） |
+| DELETE | `/api/v2/archives/:archiveId` | 删除存档（Bearer） |
 | **排行榜** |||
-| GET | `/api/maps/:mapId/dimensions` | 获取地图排行榜维度 |
-| POST | `/api/maps/:mapId/dimensions` | 创建排行榜维度 |
-| GET | `/api/maps/:mapId/leaderboard/:dimensionId` | 获取排行榜 |
-| POST | `/api/archives/:archiveId/scores` | 提交排行榜成绩 |
+| GET | `/api/v2/maps/:mapId/dimensions` | 获取地图排行榜维度（Bearer） |
+| POST | `/api/v2/maps/:mapId/dimensions` | 创建排行榜维度（Admin） |
+| GET | `/api/v2/maps/:mapId/leaderboard/:dimensionId` | 获取排行榜（Bearer，默认每玩家最佳；`mode=archive` 为每存档） |
+| GET | `/api/v2/maps/:mapId/leaderboard/:dimensionId/me` | 获取我的排名（Bearer，独立 endpoint） |
+| POST | `/api/v2/archives/:archiveId/scores` | 提交排行榜成绩（Bearer） |
 
 ### 示例请求
+
+#### 获取玩家 token
+
+```bash
+curl -X POST http://localhost:3000/api/v2/auth/player \
+  -H "Content-Type: application/json" \
+  -d '{"playerId":"player-001","playerName":"测试玩家"}'
+```
 
 #### 创建存档
 
 ```bash
-curl -X POST http://localhost:3000/api/maps/map-001/archives \
+curl -X POST http://localhost:3000/api/v2/maps/map-001/archives \
   -H "Content-Type: application/json" \
-  -H "X-Player-ID: player-001" \
-  -H "X-Player-Name: 测试玩家" \
+  -H "Authorization: Bearer <token>" \
   -d '{"name": "存档1", "data": {"level": 5, "coins": 1000}}'
 ```
 
 #### 提交排行榜成绩
 
 ```bash
-curl -X POST http://localhost:3000/api/archives/archive-id/scores \
+curl -X POST http://localhost:3000/api/v2/archives/archive-id/scores \
   -H "Content-Type: application/json" \
-  -H "X-Player-ID: player-001" \
-  -H "X-Player-Name: 测试玩家" \
+  -H "Authorization: Bearer <token>" \
   -d '{"scores": [{"dimensionId": "dim-id", "value": 9999}]}'
 ```
 

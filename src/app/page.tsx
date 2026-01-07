@@ -8,10 +8,10 @@ export default function Home() {
         </p>
         <div className="flex gap-4 justify-center">
           <a
-            href="/maps"
+            href="/admin/login"
             className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
           >
-            地图管理
+            进入管理端
           </a>
           <a
             href="/leaderboard"
