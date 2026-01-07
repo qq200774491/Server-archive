@@ -48,10 +48,16 @@ check_docker() {
 # 检查 Docker Compose 是否安装
 check_docker_compose() {
     print_info "检查 Docker Compose 是否安装..."
-    if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
+    if ! docker compose version &> /dev/null && ! command -v docker-compose &> /dev/null; then
         print_error "Docker Compose 未安装！"
         echo "请先安装 Docker Compose"
         exit 1
+    fi
+    # 判断使用哪个命令
+    if docker compose version &> /dev/null; then
+        DOCKER_COMPOSE="docker compose"
+    else
+        DOCKER_COMPOSE="docker-compose"
     fi
     print_success "Docker Compose 已安装"
 }
@@ -113,14 +119,14 @@ setup_env() {
 # 停止并删除旧容器
 stop_old_containers() {
     print_info "停止旧容器..."
-    docker-compose down 2>/dev/null || true
+    $DOCKER_COMPOSE down 2>/dev/null || true
     print_success "旧容器已停止"
 }
 
 # 构建并启动服务
 start_services() {
     print_info "构建并启动服务..."
-    docker-compose up -d --build
+    $DOCKER_COMPOSE up -d --build
     print_success "服务已启动"
 }
 
@@ -130,7 +136,7 @@ run_migration() {
     sleep 10
 
     print_info "运行数据库迁移..."
-    docker-compose --profile migrate up migrate
+    $DOCKER_COMPOSE --profile migrate up migrate
     print_success "数据库迁移完成"
 }
 
@@ -141,16 +147,16 @@ show_status() {
     echo "  部署完成！"
     echo "========================================="
     echo ""
-    docker-compose ps
+    $DOCKER_COMPOSE ps
     echo ""
     print_success "前端访问地址: http://localhost:3000"
     print_success "API 访问地址: http://localhost:3000/api"
     echo ""
     echo "常用命令："
-    echo "  查看日志: docker-compose logs -f"
-    echo "  停止服务: docker-compose down"
-    echo "  重启服务: docker-compose restart"
-    echo "  查看状态: docker-compose ps"
+    echo "  查看日志: $DOCKER_COMPOSE logs -f"
+    echo "  停止服务: $DOCKER_COMPOSE down"
+    echo "  重启服务: $DOCKER_COMPOSE restart"
+    echo "  查看状态: $DOCKER_COMPOSE ps"
     echo ""
 }
 
