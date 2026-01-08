@@ -3,6 +3,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# 安装 OpenSSL（Prisma 需要）
+RUN apk add --no-cache openssl
+
 # 安装依赖
 COPY package*.json ./
 RUN npm ci
@@ -20,6 +23,9 @@ RUN npm run build
 FROM node:20-alpine AS runner
 
 WORKDIR /app
+
+# 安装 OpenSSL（Prisma 需要）
+RUN apk add --no-cache openssl libc6-compat
 
 ENV NODE_ENV=production
 
