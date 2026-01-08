@@ -27,7 +27,7 @@ WorkingDirectory=${APP_DIR}
 Environment="WEBHOOK_PORT=${WEBHOOK_PORT}"
 Environment="WEBHOOK_SECRET=${WEBHOOK_SECRET}"
 Environment="DEPLOY_SCRIPT=${APP_DIR}/scripts/auto-deploy.sh"
-ExecStart=/usr/bin/node ${APP_DIR}/scripts/webhook-listener.js
+ExecStart=/usr/bin/python3 ${APP_DIR}/scripts/webhook-listener.py
 Restart=always
 RestartSec=10
 StandardOutput=append:/var/log/webhook-listener.log
@@ -38,7 +38,7 @@ WantedBy=multi-user.target
 EOF
 
 echo "设置脚本权限..."
-chmod +x "${APP_DIR}/scripts/webhook-listener.js"
+chmod +x "${APP_DIR}/scripts/webhook-listener.py"
 chmod +x "${APP_DIR}/scripts/auto-deploy.sh"
 
 echo "创建日志目录..."
