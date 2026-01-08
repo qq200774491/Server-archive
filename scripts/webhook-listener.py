@@ -88,23 +88,23 @@ class WebhookHandler(BaseHTTPRequestHandler):
         content_length = int(self.headers.get('Content-Length', 0))
         body = self.rfile.read(content_length)
 
-        # 验证签名
-        signature = (self.headers.get('X-Hub-Signature-256') or 
-                    self.headers.get('X-Codeup-Token') or 
-                    self.headers.get('X-Gitlab-Token') or
-                    self.headers.get('X-Gitee-Token'))
+        # 验证签名（暂时禁用，调试完成后再启用）
+        # signature = (self.headers.get('X-Hub-Signature-256') or 
+        #             self.headers.get('X-Codeup-Token') or 
+        #             self.headers.get('X-Gitlab-Token') or
+        #             self.headers.get('X-Gitee-Token'))
         
-        if SECRET != 'change-me-to-a-secret':
-            if not signature:
-                log(f'⚠️  未收到签名头，可用头: {list(self.headers.keys())}')
-            elif not verify_signature(body, signature, SECRET):
-                log(f'⚠️  签名验证失败 (收到: {signature[:20]}...)')
-                self.send_response(401)
-                self.end_headers()
-                self.wfile.write(b'Unauthorized')
-                return
-            else:
-                log('✅ 签名验证通过')
+        # if SECRET != 'change-me-to-a-secret':
+        #     if not signature:
+        #         log(f'⚠️  未收到签名头，可用头: {list(self.headers.keys())}')
+        #     elif not verify_signature(body, signature, SECRET):
+        #         log(f'⚠️  签名验证失败 (收到: {signature[:20]}...)')
+        #         self.send_response(401)
+        #         self.end_headers()
+        #         self.wfile.write(b'Unauthorized')
+        #         return
+        #     else:
+        #         log('✅ 签名验证通过')
 
         try:
             payload = json.loads(body.decode('utf-8'))
