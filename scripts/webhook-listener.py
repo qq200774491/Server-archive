@@ -28,10 +28,18 @@ def log(message):
 def verify_signature(payload, signature, secret):
     if not signature:
         return False
+    
+    # 尝试多种签名格式
+    # GitHub 格式: sha256=xxx
     mac = hmac.new(secret.encode(), payload, hashlib.sha256)
-    expected = 'sha256=' + mac.hexdigest()
+    expected_github = 'sha256=' + mac.hexdigest()
+    
+    # Codeup 可能直接是 hex 字符串
+    expected_plain = mac.hexdigest()
+    
     try:
-        return hmac.compare_digest(expected, signature)
+        return (hmac.compare_digest(expected_github, signature) or 
+                hmac.compare_digest(expected_plain, signature))
     except:
         return False
 
@@ -81,15 +89,21 @@ class WebhookHandler(BaseHTTPRequestHandler):
         body = self.rfile.read(content_length)
 
         # 验证签名
-        signature = self.headers.get('X-Hub-Signature-256') or self.headers.get('X-Codeup-Signature')
+        signature = (self.headers.get('X-Hub-Signature-256') or 
+                    self.headers.get('X-Codeup-Signature') or
+                    self.headers.get('X-Gitee-Token'))
         
         if SECRET != 'change-me-to-a-secret':
-            if not verify_signature(body, signature, SECRET):
-                log('⚠️  签名验证失败')
+            if not signature:
+                log(f'⚠️  未收到签名头，可用头: {list(self.headers.keys())}')
+            elif not verify_signature(body, signature, SECRET):
+                log(f'⚠️  签名验证失败 (收到: {signature[:20]}...)')
                 self.send_response(401)
                 self.end_headers()
                 self.wfile.write(b'Unauthorized')
                 return
+            else:
+                log('✅ 签名验证通过')
 
         try:
             payload = json.loads(body.decode('utf-8'))
