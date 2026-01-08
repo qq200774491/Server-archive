@@ -32,23 +32,11 @@ log "📦 拉取最新代码..."
 git fetch --all
 git reset --hard origin/master
 
-log "🛑 停止现有容器..."
-docker compose down
+log "� 快速重启服务..."
+docker compose restart app
 
-log "🔨 构建新镜像..."
-docker compose build
-
-log "🚀 启动服务..."
-docker compose up -d
-
-log "⏳ 等待数据库就绪..."
-sleep 5
-
-log "🗃️  运行数据库迁移..."
-docker compose exec -T app node node_modules/prisma/build/index.js db push --accept-data-loss || log "⚠️  数据库迁移失败，继续..."
-
-log "⏳ 等待服务启动..."
-sleep 5
+log "⏳ 等待服务重启..."
+sleep 10
 
 log "🏥 健康检查..."
 if curl -sf http://localhost:3000/api/health > /dev/null; then
