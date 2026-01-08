@@ -34,7 +34,7 @@ log "⏳ 等待数据库就绪..."
 sleep 5
 
 log "🗃️  运行数据库迁移..."
-docker compose exec -T app sh -c "npx prisma db push --accept-data-loss" || log "⚠️  数据库迁移失败，继续..."
+docker compose exec -T app node node_modules/prisma/build/index.js db push --accept-data-loss || log "⚠️  数据库迁移失败，继续..."
 
 log "⏳ 等待服务启动..."
 sleep 5
