@@ -15,7 +15,7 @@ export function OPTIONS(request: NextRequest) {
 // GET /api/v2/archives/:archiveId - 获取存档详情（Bearer）
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    await getPlayerFromRequestV2(request)
+    const player = await getPlayerFromRequestV2(request)
     const { archiveId } = await params
 
     const archive = await prisma.archive.findUnique({
@@ -34,6 +34,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     })
 
     if (!archive) return v2NotFound(request, '存档')
+    if (archive.mapPlayer.playerId !== player.dbPlayer.id) {
+      return v2Error(request, '无权访问此存档', 403)
+    }
     return v2Json(request, archive)
   } catch (error) {
     return v2HandleError(request, error)

@@ -11,6 +11,8 @@
 - **RESTful API**: 完整的 API 供游戏客户端调用
 - **管理前端**: Web 界面管理地图、玩家、存档和排行榜
 
+> 审计与实现对齐记录：`docs/AUDIT.md`
+
 ## 技术栈
 
 - **框架**: Next.js 14+ (App Router)
@@ -59,7 +61,7 @@ npm install
 
 # 配置环境变量
 cp .env.example .env
-# 编辑 .env 文件，设置 DATABASE_URL
+# 编辑 .env 文件，至少设置：DATABASE_URL / ADMIN_TOKEN / PLAYER_TOKEN_SECRET
 
 # 数据库迁移
 npm run db:migrate
@@ -103,7 +105,7 @@ npm run dev
 | POST | `/api/v2/maps/:mapId/join` | 加入地图（Bearer） |
 | **存档** |||
 | GET | `/api/v2/maps/:mapId/archives` | 获取我在该地图的存档（Bearer） |
-| GET | `/api/v2/archives/:archiveId` | 获取存档详情（Bearer） |
+| GET | `/api/v2/archives/:archiveId` | 获取存档详情（Bearer，仅允许存档所有者） |
 | POST | `/api/v2/maps/:mapId/archives` | 创建存档（Bearer） |
 | PUT | `/api/v2/archives/:archiveId` | 更新存档（Bearer） |
 | DELETE | `/api/v2/archives/:archiveId` | 删除存档（Bearer） |
@@ -113,6 +115,8 @@ npm run dev
 | GET | `/api/v2/maps/:mapId/leaderboard/:dimensionId` | 获取排行榜（Bearer，默认每玩家最佳；`mode=archive` 为每存档） |
 | GET | `/api/v2/maps/:mapId/leaderboard/:dimensionId/me` | 获取我的排名（Bearer，独立 endpoint） |
 | POST | `/api/v2/archives/:archiveId/scores` | 提交排行榜成绩（Bearer） |
+
+> 列表接口支持分页参数：`page`（默认 1），`limit`（默认 20，最大 100）。
 
 ### 示例请求
 
@@ -158,6 +162,15 @@ curl -X POST http://localhost:3000/api/v2/archives/archive-id/scores \
 |--------|------|--------|
 | `DATABASE_URL` | PostgreSQL 连接字符串 | - |
 | `NEXT_PUBLIC_APP_URL` | 应用 URL | `http://localhost:3000` |
+| `ADMIN_TOKEN` | 管理端 token（UI + Admin API） | - |
+| `PLAYER_TOKEN_SECRET` | 玩家 Bearer token 签名密钥 | - |
+| `CORS_ALLOWED_ORIGINS` | CORS 白名单（逗号分隔；`*` 表示全放开） | `*` |
+
+## 运维接口
+
+| 方法 | 路径 | 描述 |
+|------|------|------|
+| GET | `/api/health` | 健康检查（不需要鉴权；包含 DB 连通性） |
 
 ## 开发命令
 

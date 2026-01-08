@@ -50,6 +50,8 @@ export function CreateMapForm() {
 
       router.push(`/maps/${data.id}`)
       router.refresh()
+    } catch {
+      setError('网络错误：创建地图失败')
     } finally {
       setSubmitting(false)
     }

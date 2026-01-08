@@ -10,7 +10,7 @@ const navItems = [
   { href: '/maps', label: '地图', icon: Map },
   { href: '/players', label: '玩家', icon: Users },
   { href: '/archives', label: '存档', icon: Archive },
-  { href: '/leaderboard', label: '排行榜', icon: Trophy },
+  { href: '/admin/leaderboard', label: '排行榜', icon: Trophy },
 ]
 
 export function MainNav() {

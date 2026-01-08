@@ -2,10 +2,12 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import prisma from '@/lib/db'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { ArrowLeft, Users, Trophy, Archive } from 'lucide-react'
+import { ArrowLeft, Users, Trophy } from 'lucide-react'
+import { CreateDimensionForm } from '@/components/create-dimension-form'
+import { MapSettingsForm } from '@/components/map-settings-form'
+import { DimensionItem } from '@/components/dimension-item'
 
 export const dynamic = 'force-dynamic'
 
@@ -89,33 +91,37 @@ export default async function MapDetailPage({ params }: PageProps) {
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* 排行榜维度 */}
-        <Card>
-          <CardHeader>
-            <CardTitle>排行榜维度</CardTitle>
-            <CardDescription>此地图的排行榜类型</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {map.dimensions.length === 0 ? (
-              <p className="text-muted-foreground text-sm">暂无排行榜维度</p>
-            ) : (
-              <div className="space-y-2">
-                {map.dimensions.map((dim) => (
-                  <div key={dim.id} className="flex items-center justify-between p-2 border rounded">
-                    <div>
-                      <span className="font-medium">{dim.name}</span>
-                      {dim.unit && (
-                        <span className="text-muted-foreground text-sm ml-2">({dim.unit})</span>
-                      )}
-                    </div>
-                    <Badge variant={dim.sortOrder === 'DESC' ? 'default' : 'secondary'}>
-                      {dim.sortOrder === 'DESC' ? '高分优先' : '低分优先'}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <MapSettingsForm map={{ id: map.id, name: map.name, description: map.description }} />
+          <CreateDimensionForm mapId={map.id} />
+
+          <Card>
+            <CardHeader>
+              <CardTitle>已有维度</CardTitle>
+              <CardDescription>此地图的排行榜类型</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {map.dimensions.length === 0 ? (
+                <p className="text-muted-foreground text-sm">暂无排行榜维度</p>
+              ) : (
+                <div className="space-y-2">
+                  {map.dimensions.map((dim) => (
+                    <DimensionItem
+                      key={dim.id}
+                      mapId={map.id}
+                      dimension={{
+                        id: dim.id,
+                        name: dim.name,
+                        unit: dim.unit,
+                        sortOrder: dim.sortOrder,
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         {/* 最近玩家 */}
         <Card>

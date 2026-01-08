@@ -1,4 +1,5 @@
 import { MainNav, MobileNav } from '@/components/nav'
+import { AdminLogoutButton } from '@/components/admin-logout-button'
 
 export default function DashboardLayout({
   children,
@@ -15,6 +16,9 @@ export default function DashboardLayout({
           </div>
           <div className="hidden md:flex">
             <MainNav />
+          </div>
+          <div className="ml-auto flex items-center">
+            <AdminLogoutButton />
           </div>
         </div>
       </header>

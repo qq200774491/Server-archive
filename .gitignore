@@ -49,6 +49,5 @@ docker/data/
 # Local tools and temp files
 .claude/
 tools/
-docs/
+꾑욋
 仓库
-.gitignore

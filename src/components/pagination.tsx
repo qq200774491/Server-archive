@@ -2,23 +2,37 @@
 
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 interface PaginationProps {
   page: number
   totalPages: number
-  onPageChange: (page: number) => void
+  paramName?: string
 }
 
-export function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
+export function Pagination({ page, totalPages, paramName = 'page' }: PaginationProps) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
   const hasPrevious = page > 1
   const hasNext = page < totalPages
+
+  function go(nextPage: number) {
+    const next = new URLSearchParams(searchParams.toString())
+    if (nextPage <= 1) next.delete(paramName)
+    else next.set(paramName, String(nextPage))
+
+    const qs = next.toString()
+    router.push(qs ? `${pathname}?${qs}` : pathname)
+  }
 
   return (
     <div className="flex items-center justify-center gap-2">
       <Button
         variant="outline"
         size="sm"
-        onClick={() => onPageChange(page - 1)}
+        onClick={() => go(page - 1)}
         disabled={!hasPrevious}
       >
         <ChevronLeft className="h-4 w-4" />
@@ -32,7 +46,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
       <Button
         variant="outline"
         size="sm"
-        onClick={() => onPageChange(page + 1)}
+        onClick={() => go(page + 1)}
         disabled={!hasNext}
       >
         下一页

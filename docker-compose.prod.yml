@@ -11,12 +11,15 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - NODE_ENV=production
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
+      - PLAYER_TOKEN_SECRET=${PLAYER_TOKEN_SECRET}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-*}
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/maps"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -69,7 +72,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: npx prisma migrate deploy
+    command: node node_modules/prisma/build/index.js migrate deploy
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
@@ -87,6 +90,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - POSTGRES_DB=${POSTGRES_DB:-serverarchive}
+      - PGPASSWORD=${POSTGRES_PASSWORD:-postgres}
     volumes:
       - ./backups:/backups
     entrypoint: /bin/sh

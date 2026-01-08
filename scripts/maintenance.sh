@@ -109,8 +109,8 @@ health_check() {
         $DOCKER_COMPOSE up -d
     fi
     
-    # 检查 API 响应
-    if curl -sf http://localhost:3000/api/v2/maps > /dev/null 2>&1; then
+    # 检查健康检查接口（不需要鉴权）
+    if curl -sf http://localhost:3000/api/health > /dev/null 2>&1; then
         log "健康检查通过"
     else
         log "警告：API 无响应，尝试重启..."

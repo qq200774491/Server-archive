@@ -2,18 +2,35 @@ import Link from 'next/link'
 import prisma from '@/lib/db'
 import { Card, CardContent } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Pagination } from '@/components/pagination'
 
 export const dynamic = 'force-dynamic'
 
-export default async function PlayersPage() {
-  const players = await prisma.player.findMany({
-    orderBy: { createdAt: 'desc' },
-    include: {
-      _count: {
-        select: { mapPlayers: true },
+interface PageProps {
+  searchParams: Promise<{ page?: string }>
+}
+
+export default async function PlayersPage({ searchParams }: PageProps) {
+  const { page: pageParam } = await searchParams
+  const page = Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1)
+  const limit = 20
+  const skip = (page - 1) * limit
+
+  const [players, total] = await Promise.all([
+    prisma.player.findMany({
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        _count: {
+          select: { mapPlayers: true },
+        },
       },
-    },
-  })
+    }),
+    prisma.player.count(),
+  ])
+
+  const totalPages = Math.max(1, Math.ceil(total / limit))
 
   return (
     <div className="space-y-6">
@@ -60,6 +77,10 @@ export default async function PlayersPage() {
           )}
         </CardContent>
       </Card>
+
+      {totalPages > 1 && (
+        <Pagination page={Math.min(page, totalPages)} totalPages={totalPages} />
+      )}
     </div>
   )
 }

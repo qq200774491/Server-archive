@@ -1,24 +1,40 @@
 import Link from 'next/link'
 import prisma from '@/lib/db'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Pagination } from '@/components/pagination'
 import { Plus, Users, Trophy } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
-export default async function MapsPage() {
-  const maps = await prisma.map.findMany({
-    orderBy: { createdAt: 'desc' },
-    include: {
-      _count: {
-        select: {
-          mapPlayers: true,
-          dimensions: true,
+interface PageProps {
+  searchParams: Promise<{ page?: string }>
+}
+
+export default async function MapsPage({ searchParams }: PageProps) {
+  const { page: pageParam } = await searchParams
+  const page = Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1)
+  const limit = 12
+  const skip = (page - 1) * limit
+
+  const [maps, total] = await Promise.all([
+    prisma.map.findMany({
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        _count: {
+          select: {
+            mapPlayers: true,
+            dimensions: true,
+          },
         },
       },
-    },
-  })
+    }),
+    prisma.map.count(),
+  ])
+
+  const totalPages = Math.max(1, Math.ceil(total / limit))
 
   return (
     <div className="space-y-6">
@@ -45,33 +61,39 @@ export default async function MapsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {maps.map((map) => (
-            <Link key={map.id} href={`/maps/${map.id}`}>
-              <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    {map.name}
-                  </CardTitle>
-                  <CardDescription>
-                    {map.description || '暂无描述'}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex gap-4">
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Users className="h-4 w-4" />
-                      <span>{map._count.mapPlayers} 玩家</span>
+        <div className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {maps.map((map) => (
+              <Link key={map.id} href={`/maps/${map.id}`}>
+                <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      {map.name}
+                    </CardTitle>
+                    <CardDescription>
+                      {map.description || '暂无描述'}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex gap-4">
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Users className="h-4 w-4" />
+                        <span>{map._count.mapPlayers} 玩家</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Trophy className="h-4 w-4" />
+                        <span>{map._count.dimensions} 排行榜</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Trophy className="h-4 w-4" />
-                      <span>{map._count.dimensions} 排行榜</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <Pagination page={Math.min(page, totalPages)} totalPages={totalPages} />
+          )}
         </div>
       )}
     </div>
