@@ -90,7 +90,8 @@ class WebhookHandler(BaseHTTPRequestHandler):
 
         # 验证签名
         signature = (self.headers.get('X-Hub-Signature-256') or 
-                    self.headers.get('X-Codeup-Signature') or
+                    self.headers.get('X-Codeup-Token') or 
+                    self.headers.get('X-Gitlab-Token') or
                     self.headers.get('X-Gitee-Token'))
         
         if SECRET != 'change-me-to-a-secret':
