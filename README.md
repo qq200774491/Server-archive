@@ -61,7 +61,8 @@ npm install
 
 # 配置环境变量
 cp .env.example .env
-# 编辑 .env 文件，至少设置：DATABASE_URL / ADMIN_TOKEN / PLAYER_TOKEN_SECRET
+# 编辑 .env 文件，至少设置：
+# DATABASE_URL / ADMIN_USERNAME / ADMIN_PASSWORD / ADMIN_SESSION_SECRET / PLAYER_TOKEN_SECRET
 
 # 数据库迁移
 npm run db:migrate
@@ -84,8 +85,8 @@ npm run dev
 - 后续请求携带：`Authorization: Bearer <token>`
 
 **管理端（后台）**
-- 需要携带：`X-Admin-Token: <ADMIN_TOKEN>`
-- 管理 UI 访问需先到 `/admin/login` 输入 token
+- 访问 `/admin/login` 输入账号密码，服务端设置 `admin_session` Cookie
+- 管理端 API 使用会话 Cookie 鉴权
 
 ### API 端点
 
@@ -93,6 +94,10 @@ npm run dev
 |------|------|------|
 | **认证** |||
 | POST | `/api/v2/auth/player` | 签发玩家 token（并自动注册/更新玩家） |
+| POST | `/api/admin/login` | 管理员登录（账号密码） |
+| POST | `/api/admin/logout` | 管理员退出登录 |
+| PUT | `/api/admin/credentials` | 管理员更新账号密码 |
+| GET | `/api/admin/summary` | 管理端汇总数据 |
 | **地图** |||
 | GET | `/api/v2/maps` | 获取所有地图（Bearer） |
 | GET | `/api/v2/maps/:mapId` | 获取地图详情（Bearer） |
@@ -162,7 +167,9 @@ curl -X POST http://localhost:3000/api/v2/archives/archive-id/scores \
 |--------|------|--------|
 | `DATABASE_URL` | PostgreSQL 连接字符串 | - |
 | `NEXT_PUBLIC_APP_URL` | 应用 URL | `http://localhost:3000` |
-| `ADMIN_TOKEN` | 管理端 token（UI + Admin API） | - |
+| `ADMIN_USERNAME` | 管理员账号（首次启动引导） | - |
+| `ADMIN_PASSWORD` | 管理员密码（首次启动引导） | - |
+| `ADMIN_SESSION_SECRET` | 管理会话签名密钥 | - |
 | `PLAYER_TOKEN_SECRET` | 玩家 Bearer token 签名密钥 | - |
 | `CORS_ALLOWED_ORIGINS` | CORS 白名单（逗号分隔；`*` 表示全放开） | `*` |
 

@@ -176,8 +176,9 @@ export default async function AdminLeaderboardPage({ searchParams }: PageProps) 
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">排行榜（管理端）</h1>
+      <div className="space-y-2">
+        <Badge variant="outline" className="w-fit">管理端排行榜</Badge>
+        <h1 className="font-display text-3xl font-semibold">排行榜（管理端）</h1>
         <p className="text-muted-foreground">查看各地图的排行榜数据</p>
       </div>
 
@@ -196,17 +197,17 @@ export default async function AdminLeaderboardPage({ searchParams }: PageProps) 
                   {map.dimensions.length === 0 ? (
                     <p className="text-muted-foreground text-xs">暂无排行榜</p>
                   ) : (
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {map.dimensions.map((dim) => (
                         <Link
                           key={dim.id}
                           href={`/admin/leaderboard?mapId=${map.id}&dimensionId=${dim.id}&mode=${mode}${limitQuery}`}
                         >
                           <div
-                            className={`p-2 rounded text-sm cursor-pointer transition-colors ${
+                            className={`rounded-xl border border-transparent p-3 text-sm transition ${
                               dimensionId === dim.id
-                                ? 'bg-primary text-primary-foreground'
-                                : 'hover:bg-muted'
+                                ? 'bg-primary text-primary-foreground shadow-[0_14px_24px_-18px_rgba(0,0,0,0.4)]'
+                                : 'bg-muted/40 hover:border-border/70 hover:bg-muted/70'
                             }`}
                           >
                             <div className="flex items-center justify-between">

@@ -40,7 +40,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PUT /api/v2/maps/:mapId - 更新地图（Admin）
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    requireAdminFromRequest(request)
+    await requireAdminFromRequest(request)
     const { mapId } = await params
 
     const existing = await prisma.map.findUnique({ where: { id: mapId } })
@@ -76,7 +76,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 // DELETE /api/v2/maps/:mapId - 删除地图（Admin）
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    requireAdminFromRequest(request)
+    await requireAdminFromRequest(request)
     const { mapId } = await params
 
     const existing = await prisma.map.findUnique({ where: { id: mapId } })

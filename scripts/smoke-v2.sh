@@ -2,10 +2,11 @@
 set -euo pipefail
 
 APP_URL="${APP_URL:-http://localhost:3000}"
-ADMIN_TOKEN="${ADMIN_TOKEN:-}"
+ADMIN_USERNAME="${ADMIN_USERNAME:-}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD:-}"
 
-if [[ -z "${ADMIN_TOKEN}" ]]; then
-  echo "Missing ADMIN_TOKEN (export ADMIN_TOKEN=...)" >&2
+if [[ -z "${ADMIN_USERNAME}" || -z "${ADMIN_PASSWORD}" ]]; then
+  echo "Missing ADMIN_USERNAME / ADMIN_PASSWORD (export ADMIN_USERNAME=... ADMIN_PASSWORD=...)" >&2
   exit 1
 fi
 
@@ -17,6 +18,17 @@ require() {
 
 require curl
 require jq
+require mktemp
+
+COOKIE_JAR="$(mktemp)"
+trap 'rm -f "${COOKIE_JAR}"' EXIT
+
+echo "[smoke] 0) admin login"
+curl -fsS -X POST "${APP_URL}/api/admin/login" \
+  -H 'Content-Type: application/json' \
+  -d "{\"username\":\"${ADMIN_USERNAME}\",\"password\":\"${ADMIN_PASSWORD}\"}" \
+  -c "${COOKIE_JAR}" \
+  >/dev/null
 
 echo "[smoke] 1) issue player token"
 TOKEN="$(
@@ -34,7 +46,7 @@ echo "[smoke] 2) create map (admin)"
 MAP_ID="$(
   curl -fsS -X POST "${APP_URL}/api/v2/maps" \
     -H 'Content-Type: application/json' \
-    -H "X-Admin-Token: ${ADMIN_TOKEN}" \
+    -b "${COOKIE_JAR}" \
     -d '{"name":"测试地图","description":"smoke"}' \
   | jq -r '.id'
 )"
@@ -57,7 +69,7 @@ echo "[smoke] 5) create dimension (admin)"
 DIM_ID="$(
   curl -fsS -X POST "${APP_URL}/api/v2/maps/${MAP_ID}/dimensions" \
     -H 'Content-Type: application/json' \
-    -H "X-Admin-Token: ${ADMIN_TOKEN}" \
+    -b "${COOKIE_JAR}" \
     -d '{"name":"分数","unit":"分","sortOrder":"DESC"}' \
   | jq -r '.id'
 )"

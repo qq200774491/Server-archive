@@ -15,7 +15,7 @@ export function OPTIONS(request: NextRequest) {
 // PUT /api/v2/maps/:mapId/dimensions/:dimensionId - 更新排行榜维度（Admin）
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    requireAdminFromRequest(request)
+    await requireAdminFromRequest(request)
     const { mapId, dimensionId } = await params
 
     const existing = await prisma.leaderboardDimension.findUnique({
@@ -65,7 +65,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 // DELETE /api/v2/maps/:mapId/dimensions/:dimensionId - 删除排行榜维度（Admin）
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    requireAdminFromRequest(request)
+    await requireAdminFromRequest(request)
     const { mapId, dimensionId } = await params
 
     const existing = await prisma.leaderboardDimension.findUnique({

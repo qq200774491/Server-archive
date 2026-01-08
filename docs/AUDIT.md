@@ -10,7 +10,7 @@
 - **已补齐（本次）**：管理端“地图详情”页面新增**创建排行榜维度**入口（调用 `POST /api/v2/maps/:mapId/dimensions`）。
 - **已对齐（本次）**：管理端排行榜默认改为**每玩家最佳**（与 v2 默认行为一致），并支持切换“每存档”。
 - **需要尽快对齐（部署/运维）**：
-  - `ADMIN_TOKEN` / `PLAYER_TOKEN_SECRET` 是 v2 必需环境变量，文档/Compose 配置需要保证容器能拿到这两个值。
+  - `ADMIN_USERNAME` / `ADMIN_PASSWORD` / `ADMIN_SESSION_SECRET` / `PLAYER_TOKEN_SECRET` 是 v2 必需环境变量，文档/Compose 配置需要保证容器能拿到这些值。
   - 健康检查建议使用 `GET /api/health`（无需鉴权），避免用 v1 或需要鉴权的接口。
 
 ## 已实现功能清单（以 v2 为准）
@@ -34,8 +34,8 @@
 
 ### 管理端（Web UI）
 
-- 管理端登录页：`/admin/login`（把 `ADMIN_TOKEN` 写入 `admin_token` cookie）
-- 管理端路由保护：`/maps`、`/players`、`/archives`、`/leaderboard` 需要 `admin_token` cookie
+- 管理端登录页：`/admin/login`（账号密码登录，服务端设置 `admin_session` Cookie）
+- 管理端路由保护：`/maps`、`/players`、`/archives`、`/admin/*` 需要 `admin_session` Cookie
 - 地图：列表/详情/创建
 - 玩家：列表/详情
 - 存档：列表/详情
@@ -47,16 +47,16 @@
 
 ### P0（会影响运行/稳定性）
 
-- 部署配置未确保容器获得 `ADMIN_TOKEN`、`PLAYER_TOKEN_SECRET`（v2 核心鉴权依赖）。
+- 部署配置未确保容器获得 `ADMIN_USERNAME`、`ADMIN_PASSWORD`、`ADMIN_SESSION_SECRET`、`PLAYER_TOKEN_SECRET`（v2 核心鉴权依赖）。
 - 健康检查/运维脚本不应调用 v1 或需要鉴权的接口；建议统一使用 `GET /api/health`。
 
 ### P1（管理体验/可维护性）
 
-- 管理端缺少：地图编辑/删除、维度编辑/删除、按条件筛选（地图/玩家/存档/时间范围）、批量操作。
-- 缺少一个对外的“公开排行榜页面”（目前 `/leaderboard` 属于管理端路由，受 admin cookie 保护）。
-- 缺少“退出登录”（清理 `admin_token` cookie）入口。
+- 已补齐：地图编辑/删除、维度编辑/删除、存档筛选与分页；仍缺批量操作。
+- 已补齐：公开排行榜页面 `/leaderboard`。
+- 已补齐：管理端“退出登录”入口（清理 `admin_session` Cookie）。
 
 ### P2（产品/安全增强）
 
-- `admin_token` cookie 为非 httpOnly（已在登录页提示），建议生产环境配合反向代理/内网隔离使用。
+- `admin_session` cookie 为 httpOnly（更安全），建议生产环境仍配合反向代理/内网隔离使用。
 - 视需求决定：是否允许管理员通过 API 读取任意存档（当前管理端直接读 DB，不走 API）。

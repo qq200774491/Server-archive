@@ -1,10 +1,6 @@
 import type { NextRequest } from 'next/server'
 
-const DEFAULT_ALLOWED_HEADERS = [
-  'Authorization',
-  'Content-Type',
-  'X-Admin-Token',
-].join(', ')
+const DEFAULT_ALLOWED_HEADERS = ['Authorization', 'Content-Type'].join(', ')
 
 const DEFAULT_ALLOWED_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'].join(
   ', '

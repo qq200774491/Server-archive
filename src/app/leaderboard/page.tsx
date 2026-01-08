@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Pagination } from '@/components/pagination'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { Trophy, Medal } from 'lucide-react'
 import { Prisma } from '@prisma/client'
 
@@ -126,30 +127,42 @@ export default async function PublicLeaderboardPage({ searchParams }: PageProps)
   const totalPages = Math.max(1, Math.ceil(total / limit))
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container flex h-14 items-center justify-between">
-          <div className="font-bold text-lg">Server Archive</div>
+    <div className="min-h-screen">
+      <header className="border-b border-border/70 bg-background/70 backdrop-blur">
+        <div className="container flex h-16 items-center justify-between">
+          <Link href="/" className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/15 text-primary font-semibold">
+              SA
+            </span>
+            <div>
+              <div className="font-display text-lg font-semibold">Server Archive</div>
+              <div className="text-xs text-muted-foreground">Public Leaderboard</div>
+            </div>
+          </Link>
           <div className="flex items-center gap-3 text-sm">
-            <Link href="/" className="text-muted-foreground hover:text-foreground">
-              返回首页
-            </Link>
             <Link href="/admin/login" className="text-muted-foreground hover:text-foreground">
               管理端登录
             </Link>
+            <ThemeToggle />
           </div>
         </div>
       </header>
 
-      <main className="container py-6">
+      <main className="container py-8 page-fade">
         <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold">公开排行榜</h1>
-            <p className="text-muted-foreground">每玩家最佳成绩</p>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="space-y-2">
+              <Badge variant="outline" className="w-fit">
+                公开榜单
+              </Badge>
+              <h1 className="font-display text-3xl font-semibold md:text-4xl">公开排行榜</h1>
+              <p className="text-muted-foreground">每玩家最佳成绩</p>
+            </div>
+            <div className="text-sm text-muted-foreground">支持分页与维度筛选</div>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-4">
-            <Card className="md:col-span-1">
+          <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
+            <Card className="lg:col-span-1">
               <CardHeader>
                 <CardTitle className="text-lg">选择排行榜</CardTitle>
               </CardHeader>
@@ -163,20 +176,20 @@ export default async function PublicLeaderboardPage({ searchParams }: PageProps)
                       {map.dimensions.length === 0 ? (
                         <p className="text-muted-foreground text-xs">暂无排行榜</p>
                       ) : (
-                        <div className="space-y-1">
+                        <div className="space-y-2">
                           {map.dimensions.map((dim) => (
                             <Link
                               key={dim.id}
                               href={`/leaderboard?mapId=${map.id}&dimensionId=${dim.id}${limitQuery}`}
                             >
                               <div
-                                className={`p-2 rounded text-sm cursor-pointer transition-colors ${
+                                className={`rounded-xl border border-transparent p-3 text-sm transition ${
                                   dimensionId === dim.id
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'hover:bg-muted'
+                                    ? 'bg-primary text-primary-foreground shadow-[0_14px_24px_-18px_rgba(0,0,0,0.4)]'
+                                    : 'bg-muted/40 hover:border-border/70 hover:bg-muted/70'
                                 }`}
                               >
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between gap-2">
                                   <span>{dim.name}</span>
                                   {dim.unit && (
                                     <Badge variant="outline" className="text-xs">
@@ -195,7 +208,7 @@ export default async function PublicLeaderboardPage({ searchParams }: PageProps)
               </CardContent>
             </Card>
 
-            <Card className="md:col-span-3">
+            <Card className="lg:col-span-1">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Trophy className="h-5 w-5" />

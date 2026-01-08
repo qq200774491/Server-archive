@@ -4,10 +4,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 
-function clearAdminTokenCookie() {
-  document.cookie = 'admin_token=; Path=/; Max-Age=0; SameSite=Lax'
-}
-
 export function AdminLogoutButton() {
   const router = useRouter()
   const [submitting, setSubmitting] = useState(false)
@@ -17,11 +13,14 @@ export function AdminLogoutButton() {
       variant="outline"
       size="sm"
       disabled={submitting}
-      onClick={() => {
+      onClick={async () => {
         setSubmitting(true)
-        clearAdminTokenCookie()
-        router.replace('/admin/login')
-        router.refresh()
+        try {
+          await fetch('/api/admin/logout', { method: 'POST', credentials: 'include' })
+        } finally {
+          router.replace('/admin/login')
+          router.refresh()
+        }
       }}
     >
       退出登录

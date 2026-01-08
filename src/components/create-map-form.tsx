@@ -7,11 +7,6 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 
-function getAdminTokenFromCookie(): string | null {
-  const match = document.cookie.match(/(?:^|; )admin_token=([^;]*)/)
-  return match ? decodeURIComponent(match[1]) : null
-}
-
 export function CreateMapForm() {
   const router = useRouter()
   const [name, setName] = useState('')
@@ -20,12 +15,6 @@ export function CreateMapForm() {
   const [error, setError] = useState<string | null>(null)
 
   async function submit() {
-    const token = getAdminTokenFromCookie()
-    if (!token) {
-      router.push('/admin/login?next=/maps/new')
-      return
-    }
-
     setSubmitting(true)
     setError(null)
 
@@ -34,13 +23,18 @@ export function CreateMapForm() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Admin-Token': token,
         },
+        credentials: 'include',
         body: JSON.stringify({
           name: name.trim(),
           description: description.trim() || null,
         }),
       })
+
+      if (response.status === 401) {
+        router.push('/admin/login?next=/maps/new')
+        return
+      }
 
       const data = await response.json().catch(() => null)
       if (!response.ok) {

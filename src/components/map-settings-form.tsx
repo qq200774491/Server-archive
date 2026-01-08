@@ -7,11 +7,6 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 
-function getAdminTokenFromCookie(): string | null {
-  const match = document.cookie.match(/(?:^|; )admin_token=([^;]*)/)
-  return match ? decodeURIComponent(match[1]) : null
-}
-
 type MapInfo = {
   id: string
   name: string
@@ -27,12 +22,6 @@ export function MapSettingsForm({ map }: { map: MapInfo }) {
   const [error, setError] = useState<string | null>(null)
 
   async function save() {
-    const token = getAdminTokenFromCookie()
-    if (!token) {
-      router.push(`/admin/login?next=/maps/${encodeURIComponent(map.id)}`)
-      return
-    }
-
     setSaving(true)
     setError(null)
 
@@ -41,13 +30,18 @@ export function MapSettingsForm({ map }: { map: MapInfo }) {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-Admin-Token': token,
         },
+        credentials: 'include',
         body: JSON.stringify({
           name: name.trim(),
           description: description.trim() || null,
         }),
       })
+
+      if (response.status === 401) {
+        router.push(`/admin/login?next=/maps/${encodeURIComponent(map.id)}`)
+        return
+      }
 
       const data = await response.json().catch(() => null)
       if (!response.ok) {
@@ -66,12 +60,6 @@ export function MapSettingsForm({ map }: { map: MapInfo }) {
   async function remove() {
     if (!confirm('确认删除该地图？该操作将删除相关存档和排行榜数据。')) return
 
-    const token = getAdminTokenFromCookie()
-    if (!token) {
-      router.push(`/admin/login?next=/maps/${encodeURIComponent(map.id)}`)
-      return
-    }
-
     setDeleting(true)
     setError(null)
 
@@ -79,9 +67,14 @@ export function MapSettingsForm({ map }: { map: MapInfo }) {
       const response = await fetch(`/api/v2/maps/${encodeURIComponent(map.id)}`, {
         method: 'DELETE',
         headers: {
-          'X-Admin-Token': token,
         },
+        credentials: 'include',
       })
+
+      if (response.status === 401) {
+        router.push(`/admin/login?next=/maps/${encodeURIComponent(map.id)}`)
+        return
+      }
 
       if (!response.ok && response.status !== 204) {
         const data = await response.json().catch(() => null)

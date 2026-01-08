@@ -2,6 +2,7 @@ import Link from 'next/link'
 import prisma from '@/lib/db'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Pagination } from '@/components/pagination'
 import { Plus, Users, Trophy } from 'lucide-react'
 
@@ -38,13 +39,14 @@ export default async function MapsPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">地图管理</h1>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="space-y-2">
+          <Badge variant="outline" className="w-fit">地图管理</Badge>
+          <h1 className="font-display text-3xl font-semibold">地图管理</h1>
           <p className="text-muted-foreground">管理游戏地图和排行榜维度</p>
         </div>
         <Link href="/maps/new">
-          <Button>
+          <Button className="gap-2">
             <Plus className="h-4 w-4 mr-2" />
             创建地图
           </Button>
@@ -62,10 +64,10 @@ export default async function MapsPage({ searchParams }: PageProps) {
         </Card>
       ) : (
         <div className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {maps.map((map) => (
               <Link key={map.id} href={`/maps/${map.id}`}>
-                <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+                <Card className="group h-full cursor-pointer transition hover:border-primary/40 hover:shadow-[0_18px_40px_-30px_rgba(15,23,42,0.35)]">
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       {map.name}

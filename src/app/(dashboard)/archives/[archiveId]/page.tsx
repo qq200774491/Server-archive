@@ -39,17 +39,20 @@ export default async function ArchiveDetailPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <Link href="/archives">
-          <Button variant="ghost" size="icon">
+          <Button variant="outline" size="icon">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
-        <div>
-          <h1 className="text-3xl font-bold">{archive.name}</h1>
-          <p className="text-muted-foreground">
-            存档详情 - 更新于 {new Date(archive.updatedAt).toLocaleString('zh-CN')}
-          </p>
+        <div className="space-y-2">
+          <Badge variant="outline" className="w-fit">存档详情</Badge>
+          <div>
+            <h1 className="font-display text-3xl font-semibold">{archive.name}</h1>
+            <p className="text-muted-foreground">
+              存档详情 - 更新于 {new Date(archive.updatedAt).toLocaleString('zh-CN')}
+            </p>
+          </div>
         </div>
       </div>
 

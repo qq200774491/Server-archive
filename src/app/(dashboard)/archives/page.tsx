@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Pagination } from '@/components/pagination'
+import { Badge } from '@/components/ui/badge'
 import { Prisma } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
@@ -100,8 +101,9 @@ export default async function ArchivesPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">存档列表</h1>
+      <div className="space-y-2">
+        <Badge variant="outline" className="w-fit">存档列表</Badge>
+        <h1 className="font-display text-3xl font-semibold">存档列表</h1>
         <p className="text-muted-foreground">所有玩家的存档记录</p>
       </div>
 
@@ -134,7 +136,7 @@ export default async function ArchivesPage({ searchParams }: PageProps) {
                 id="limit"
                 name="limit"
                 defaultValue={String(limit)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-10 w-full rounded-md border border-input bg-background/70 px-3 py-2 text-sm ring-offset-background backdrop-blur focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <option value="10">10</option>
                 <option value="20">20</option>

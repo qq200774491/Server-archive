@@ -10,7 +10,9 @@ services:
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-      - ADMIN_TOKEN=${ADMIN_TOKEN:-change-me}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-change-me-strong-password}
+      - ADMIN_SESSION_SECRET=${ADMIN_SESSION_SECRET:-change-me-long-random-secret}
       - PLAYER_TOKEN_SECRET=${PLAYER_TOKEN_SECRET:-change-me-to-a-long-random-string}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-*}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-serverarchive}?schema=public

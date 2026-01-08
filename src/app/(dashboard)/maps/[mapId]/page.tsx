@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import prisma from '@/lib/db'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ArrowLeft, Users, Trophy } from 'lucide-react'
 import { CreateDimensionForm } from '@/components/create-dimension-form'
@@ -44,15 +45,18 @@ export default async function MapDetailPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <Link href="/maps">
-          <Button variant="ghost" size="icon">
+          <Button variant="outline" size="icon">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
-        <div>
-          <h1 className="text-3xl font-bold">{map.name}</h1>
-          <p className="text-muted-foreground">{map.description || '暂无描述'}</p>
+        <div className="space-y-2">
+          <Badge variant="outline" className="w-fit">地图详情</Badge>
+          <div>
+            <h1 className="font-display text-3xl font-semibold">{map.name}</h1>
+            <p className="text-muted-foreground">{map.description || '暂无描述'}</p>
+          </div>
         </div>
       </div>
 

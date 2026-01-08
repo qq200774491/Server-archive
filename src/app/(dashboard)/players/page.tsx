@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import prisma from '@/lib/db'
 import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Pagination } from '@/components/pagination'
 
@@ -34,8 +35,9 @@ export default async function PlayersPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">玩家列表</h1>
+      <div className="space-y-2">
+        <Badge variant="outline" className="w-fit">玩家列表</Badge>
+        <h1 className="font-display text-3xl font-semibold">玩家列表</h1>
         <p className="text-muted-foreground">所有注册的玩家</p>
       </div>
 

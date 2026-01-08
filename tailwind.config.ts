@@ -44,6 +44,10 @@ const config: Config = {
           foreground: 'hsl(var(--card-foreground))',
         },
       },
+      fontFamily: {
+        body: ['var(--font-body)'],
+        display: ['var(--font-display)'],
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',

@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
 // POST /api/v2/maps - 创建地图（Admin）
 export async function POST(request: NextRequest) {
   try {
-    requireAdminFromRequest(request)
+    await requireAdminFromRequest(request)
     const body = await request.json()
     const name = String(body?.name ?? '').trim()
     const description =

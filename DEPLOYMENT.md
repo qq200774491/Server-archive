@@ -24,7 +24,7 @@ curl -fsSL https://raw.githubusercontent.com/qq200774491/Server-archive/master/s
 - 指定安装目录：`APP_DIR=/opt/server-archive`
 - 指定冒烟测试 URL：`APP_URL=http://localhost:3000`
 
-脚本会自动生成 `ADMIN_TOKEN`、`PLAYER_TOKEN_SECRET` 写入 `.env`，并执行一次 v2 冒烟测试。
+脚本会自动生成管理员账号密码与会话密钥、玩家 token 密钥写入 `.env`，并执行一次 v2 冒烟测试。
 
 ## Docker Compose 部署（手动）
 
@@ -43,7 +43,9 @@ cp .env.example .env
 
 至少需要修改：
 - `DATABASE_URL`（容器内访问 DB 时主机名应为 `db`）
-- `ADMIN_TOKEN`
+- `ADMIN_USERNAME`
+- `ADMIN_PASSWORD`
+- `ADMIN_SESSION_SECRET`
 - `PLAYER_TOKEN_SECRET`
 
 ### 3) 启动服务 + 迁移
@@ -64,7 +66,9 @@ docker compose --profile migrate up migrate
 
 - `DATABASE_URL`：PostgreSQL 连接字符串
 - `NEXT_PUBLIC_APP_URL`：应用对外访问 URL（用于前端拼接/展示）
-- `ADMIN_TOKEN`：管理端 token（UI + Admin API）
+- `ADMIN_USERNAME`：管理端账号（首次启动引导）
+- `ADMIN_PASSWORD`：管理端密码（首次启动引导）
+- `ADMIN_SESSION_SECRET`：管理端会话签名密钥
 - `PLAYER_TOKEN_SECRET`：玩家 Bearer token 签名密钥
 - `CORS_ALLOWED_ORIGINS`：CORS 白名单（逗号分隔；`*` 表示全放开）
 
@@ -114,4 +118,3 @@ PROJECT_DIR=/opt/server-archive ./scripts/maintenance.sh setup-cron
 
 - 生产环境建议把数据库数据卷持久化（Compose 默认已做）。
 - 可使用 `docker-compose.prod.yml` 的 `backup` profile（每日备份到 `./backups`，保留 7 天）。
-

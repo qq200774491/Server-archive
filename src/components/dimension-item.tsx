@@ -7,11 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-function getAdminTokenFromCookie(): string | null {
-  const match = document.cookie.match(/(?:^|; )admin_token=([^;]*)/)
-  return match ? decodeURIComponent(match[1]) : null
-}
-
 type DimensionInfo = {
   id: string
   name: string
@@ -38,12 +33,6 @@ export function DimensionItem({
   const [error, setError] = useState<string | null>(null)
 
   async function save() {
-    const token = getAdminTokenFromCookie()
-    if (!token) {
-      router.push(`/admin/login?next=/maps/${encodeURIComponent(mapId)}`)
-      return
-    }
-
     setSaving(true)
     setError(null)
 
@@ -54,8 +43,8 @@ export function DimensionItem({
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'X-Admin-Token': token,
           },
+          credentials: 'include',
           body: JSON.stringify({
             name: name.trim(),
             unit: unit.trim() || null,
@@ -63,6 +52,11 @@ export function DimensionItem({
           }),
         }
       )
+
+      if (response.status === 401) {
+        router.push(`/admin/login?next=/maps/${encodeURIComponent(mapId)}`)
+        return
+      }
 
       const data = await response.json().catch(() => null)
       if (!response.ok) {
@@ -82,12 +76,6 @@ export function DimensionItem({
   async function remove() {
     if (!confirm(`确认删除维度「${dimension.name}」？`)) return
 
-    const token = getAdminTokenFromCookie()
-    if (!token) {
-      router.push(`/admin/login?next=/maps/${encodeURIComponent(mapId)}`)
-      return
-    }
-
     setDeleting(true)
     setError(null)
 
@@ -97,10 +85,15 @@ export function DimensionItem({
         {
           method: 'DELETE',
           headers: {
-            'X-Admin-Token': token,
           },
+          credentials: 'include',
         }
       )
+
+      if (response.status === 401) {
+        router.push(`/admin/login?next=/maps/${encodeURIComponent(mapId)}`)
+        return
+      }
 
       if (!response.ok && response.status !== 204) {
         const data = await response.json().catch(() => null)
@@ -145,7 +138,7 @@ export function DimensionItem({
             id={`dimension-sort-${dimension.id}`}
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value === 'ASC' ? 'ASC' : 'DESC')}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-10 w-full rounded-md border border-input bg-background/70 px-3 py-2 text-sm ring-offset-background backdrop-blur focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <option value="DESC">高分优先（DESC）</option>
             <option value="ASC">低分优先（ASC）</option>

@@ -77,13 +77,27 @@ prepare_env_file() {
     cp .env.example .env
   fi
 
-ADMIN_TOKEN="$(openssl rand -hex 32)"
+ADMIN_USERNAME="admin"
+ADMIN_PASSWORD="$(openssl rand -hex 16)"
+ADMIN_SESSION_SECRET="$(openssl rand -hex 64)"
 PLAYER_TOKEN_SECRET="$(openssl rand -hex 64)"
 
-if grep -q '^ADMIN_TOKEN=' .env; then
-  sed -i "s/^ADMIN_TOKEN=.*/ADMIN_TOKEN=\"${ADMIN_TOKEN}\"/" .env
+if grep -q '^ADMIN_USERNAME=' .env; then
+  sed -i "s/^ADMIN_USERNAME=.*/ADMIN_USERNAME=\"${ADMIN_USERNAME}\"/" .env
 else
-  echo "ADMIN_TOKEN=\"${ADMIN_TOKEN}\"" >> .env
+  echo "ADMIN_USERNAME=\"${ADMIN_USERNAME}\"" >> .env
+fi
+
+if grep -q '^ADMIN_PASSWORD=' .env; then
+  sed -i "s/^ADMIN_PASSWORD=.*/ADMIN_PASSWORD=\"${ADMIN_PASSWORD}\"/" .env
+else
+  echo "ADMIN_PASSWORD=\"${ADMIN_PASSWORD}\"" >> .env
+fi
+
+if grep -q '^ADMIN_SESSION_SECRET=' .env; then
+  sed -i "s/^ADMIN_SESSION_SECRET=.*/ADMIN_SESSION_SECRET=\"${ADMIN_SESSION_SECRET}\"/" .env
+else
+  echo "ADMIN_SESSION_SECRET=\"${ADMIN_SESSION_SECRET}\"" >> .env
 fi
 
 if grep -q '^PLAYER_TOKEN_SECRET=' .env; then
@@ -92,7 +106,7 @@ else
   echo "PLAYER_TOKEN_SECRET=\"${PLAYER_TOKEN_SECRET}\"" >> .env
 fi
 
-export ADMIN_TOKEN PLAYER_TOKEN_SECRET
+export ADMIN_USERNAME ADMIN_PASSWORD ADMIN_SESSION_SECRET PLAYER_TOKEN_SECRET
 }
 
 clone_or_update_repo() {
@@ -126,7 +140,7 @@ deploy_compose() {
 
 smoke_test() {
   cd "${APP_DIR}"
-  APP_URL="${APP_URL}" ADMIN_TOKEN="${ADMIN_TOKEN}" ./scripts/smoke-v2.sh
+  APP_URL="${APP_URL}" ADMIN_USERNAME="${ADMIN_USERNAME}" ADMIN_PASSWORD="${ADMIN_PASSWORD}" ./scripts/smoke-v2.sh
 }
 
 main() {
@@ -156,7 +170,9 @@ main() {
   echo
   echo "[done] Deployed to ${APP_DIR}"
   echo "[done] App should be available at ${APP_URL}"
-  echo "[done] ADMIN_TOKEN=${ADMIN_TOKEN}"
+  echo "[done] ADMIN_USERNAME=${ADMIN_USERNAME}"
+  echo "[done] ADMIN_PASSWORD=${ADMIN_PASSWORD}"
+  echo "[done] ADMIN_SESSION_SECRET=${ADMIN_SESSION_SECRET}"
   echo "[done] PLAYER_TOKEN_SECRET=${PLAYER_TOKEN_SECRET}"
 }
 

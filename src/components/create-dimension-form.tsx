@@ -7,11 +7,6 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 
-function getAdminTokenFromCookie(): string | null {
-  const match = document.cookie.match(/(?:^|; )admin_token=([^;]*)/)
-  return match ? decodeURIComponent(match[1]) : null
-}
-
 export function CreateDimensionForm({ mapId }: { mapId: string }) {
   const router = useRouter()
   const [name, setName] = useState('')
@@ -21,12 +16,6 @@ export function CreateDimensionForm({ mapId }: { mapId: string }) {
   const [error, setError] = useState<string | null>(null)
 
   async function submit() {
-    const token = getAdminTokenFromCookie()
-    if (!token) {
-      router.push(`/admin/login?next=/maps/${encodeURIComponent(mapId)}`)
-      return
-    }
-
     setSubmitting(true)
     setError(null)
 
@@ -35,14 +24,19 @@ export function CreateDimensionForm({ mapId }: { mapId: string }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Admin-Token': token,
         },
+        credentials: 'include',
         body: JSON.stringify({
           name: name.trim(),
           unit: unit.trim() || null,
           sortOrder,
         }),
       })
+
+      if (response.status === 401) {
+        router.push(`/admin/login?next=/maps/${encodeURIComponent(mapId)}`)
+        return
+      }
 
       const data = await response.json().catch(() => null)
       if (!response.ok) {
@@ -95,7 +89,7 @@ export function CreateDimensionForm({ mapId }: { mapId: string }) {
               id="dimension-sort"
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value === 'ASC' ? 'ASC' : 'DESC')}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-10 w-full rounded-md border border-input bg-background/70 px-3 py-2 text-sm ring-offset-background backdrop-blur focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="DESC">高分优先（DESC）</option>
               <option value="ASC">低分优先（ASC）</option>

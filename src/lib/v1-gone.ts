@@ -8,7 +8,7 @@ export function v1Gone(request: NextRequest): Response {
         error: 'API v1 已停用，请使用 /api/v2/*',
         migration: {
           auth: {
-            admin: 'X-Admin-Token',
+            admin: 'POST /api/admin/login (session cookie)',
             player: 'Authorization: Bearer',
           },
         },

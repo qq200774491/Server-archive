@@ -1,8 +1,18 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Instrument_Sans, Space_Grotesk } from 'next/font/google'
+import { ThemeProvider } from '@/components/theme-provider'
+import { ThemeScript } from '@/components/theme-script'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
+const bodyFont = Instrument_Sans({
+  subsets: ['latin'],
+  variable: '--font-body',
+})
+
+const displayFont = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-display',
+})
 
 export const metadata: Metadata = {
   title: 'Server Archive',
@@ -15,8 +25,17 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh-CN">
-      <body className={inter.className}>{children}</body>
+    <html
+      lang="zh-CN"
+      suppressHydrationWarning
+      className={`${bodyFont.variable} ${displayFont.variable}`}
+    >
+      <head>
+        <ThemeScript />
+      </head>
+      <body className="font-body">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   )
 }

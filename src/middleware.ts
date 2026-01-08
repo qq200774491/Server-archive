@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { ADMIN_SESSION_COOKIE_NAME } from '@/lib/admin-constants'
 
 const PROTECTED_PREFIXES = ['/maps', '/players', '/archives', '/admin']
 
@@ -14,19 +15,13 @@ export function middleware(request: NextRequest) {
 
   if (!isProtectedPath(pathname)) return NextResponse.next()
 
-  const expected = process.env.ADMIN_TOKEN
-  const token = request.cookies.get('admin_token')?.value
+  const token = request.cookies.get(ADMIN_SESSION_COOKIE_NAME)?.value
 
   const nextUrl = new URL(request.url)
   const loginUrl = new URL('/admin/login', nextUrl.origin)
   loginUrl.searchParams.set('next', `${pathname}${request.nextUrl.search}`)
 
-  if (!expected || !token) {
-    return NextResponse.redirect(loginUrl)
-  }
-
-  if (token !== expected) {
-    loginUrl.searchParams.set('error', 'invalid')
+  if (!token) {
     return NextResponse.redirect(loginUrl)
   }
 

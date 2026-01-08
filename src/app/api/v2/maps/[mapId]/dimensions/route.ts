@@ -32,7 +32,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // POST /api/v2/maps/:mapId/dimensions - 创建排行榜维度（Admin）
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
-    requireAdminFromRequest(request)
+    await requireAdminFromRequest(request)
     const { mapId } = await params
 
     const body = await request.json()

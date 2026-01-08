@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import type { NextRequest } from 'next/server'
 import prisma from '@/lib/db'
+import { getAdminFromSessionToken, getAdminSessionCookieName } from '@/lib/admin-auth'
 
 export class AuthError extends Error {
   readonly status: number
@@ -154,18 +155,16 @@ export async function getPlayerFromRequestV2(
   }
 }
 
-export function requireAdminFromRequest(request: NextRequest): void {
-  const provided = request.headers.get('x-admin-token')
-  if (!provided) throw new AuthError('未授权：请提供 X-Admin-Token', 401)
+export async function requireAdminFromRequest(
+  request: NextRequest
+): Promise<{ id: string; username: string; sessionVersion: number }> {
+  const cookieName = getAdminSessionCookieName()
+  const token = request.cookies.get(cookieName)?.value
+  if (!token) throw new AuthError('未授权：请先登录管理端', 401)
 
-  const expected = process.env.ADMIN_TOKEN
-  if (!expected) throw new Error('Missing required env var: ADMIN_TOKEN')
+  const admin = await getAdminFromSessionToken(token)
+  if (!admin) throw new AuthError('未授权：登录状态已失效', 401)
 
-  if (
-    expected.length !== provided.length ||
-    !timingSafeEqualString(expected, provided)
-  ) {
-    throw new AuthError('无权限：X-Admin-Token 错误', 403)
-  }
+  return admin
 }
 
