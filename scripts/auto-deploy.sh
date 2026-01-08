@@ -30,8 +30,14 @@ docker compose build --no-cache
 log "🚀 启动服务..."
 docker compose up -d
 
+log "⏳ 等待数据库就绪..."
+sleep 5
+
+log "🗃️  运行数据库迁移..."
+docker compose exec -T app sh -c "npx prisma db push --accept-data-loss" || log "⚠️  数据库迁移失败，继续..."
+
 log "⏳ 等待服务启动..."
-sleep 10
+sleep 5
 
 log "🏥 健康检查..."
 if curl -sf http://localhost:3000/api/health > /dev/null; then
