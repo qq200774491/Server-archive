@@ -6,10 +6,21 @@ set -euo pipefail
 
 APP_DIR="${APP_DIR:-/root/ServerArchive}"
 LOG_FILE="${LOG_FILE:-/var/log/server-archive-deploy.log}"
+LOCK_FILE="/tmp/server-archive-deploy.lock"
 
 log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "${LOG_FILE}"
 }
+
+# 检查是否有部署正在进行
+if [ -f "${LOCK_FILE}" ]; then
+  log "⚠️  检测到正在进行的部署，跳过本次部署"
+  exit 0
+fi
+
+# 创建锁文件
+touch "${LOCK_FILE}"
+trap "rm -f ${LOCK_FILE}" EXIT
 
 log "=========================================="
 log "🚀 开始自动部署"
@@ -25,7 +36,7 @@ log "🛑 停止现有容器..."
 docker compose down
 
 log "🔨 构建新镜像..."
-docker compose build --no-cache
+docker compose build
 
 log "🚀 启动服务..."
 docker compose up -d
